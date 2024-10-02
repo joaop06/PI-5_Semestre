@@ -1,3 +1,4 @@
 [submodule "Api"]
 	path = Api
 	url = git@github.com:joaop06/CryptoInsight_Api.git
+	branch = main
