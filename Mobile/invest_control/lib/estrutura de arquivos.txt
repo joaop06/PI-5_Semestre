@@ -1,0 +1,16 @@
+lib
+    main.dart: O arquivo principal que inicia o aplicativo.
+    app
+        app_widget.dart: Configurações e temas globais do aplicativo.
+        app_routes.dart: Definição de rotas para navegação entre as telas.
+    screens
+        login
+            login_page.dart: Arquivo para a tela de login.
+            login_controller.dart: Lógica e estado para a tela de login (caso precise de uma lógica específica, como validações).
+    home
+        home_page.dart: Arquivo para a tela principal após o login.
+        home_controller.dart: Lógica e estado para a tela principal.
+    widgets: Componentes reutilizáveis, como botões, campos de texto personalizados etc.
+    models: Classes de dados que representam objetos, como o usuário ou outros dados que você utilizará no app.
+    services: Classes que contêm lógica de negócio ou chamadas de API.
+    utils: Funções utilitárias, como validações de formulário, formatações de data, etc.
