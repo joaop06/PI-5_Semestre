@@ -14,6 +14,8 @@ class ApiService {
       print('Email: $email');
       print('Password: $password');
       print('url: $url');
+      print('Tentando conectar ao servidor: $url');
+
 
       final response = await http.post(
         url,
@@ -41,41 +43,47 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     try {
-      final url = Uri.parse('$baseUrl/auth/login'); 
+      final url = Uri.parse('$baseUrl$endpoint');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        if (data.containsKey('accessToken')) {
-          print('Token recebido: ${data['accessToken']}');
-          return data; // Retorna o mapa completo com os dados
-        } else {
-          print('Resposta inesperada: $data');
-          return {'error': 'Token não encontrado'}; // Retorna erro
-        }
+        return jsonDecode(response.body);
       } else {
-        print('Erro no login: ${response.statusCode}, ${response.body}');
-return {
-  'error': 'Erro no login',
-  'message': jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
-};
+        return {
+          'error': 'Erro: ${response.statusCode}',
+          'message': jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
+        };
       }
     } catch (e) {
-  if (e is http.ClientException) {
-    print('Erro de cliente: $e');
-  } else {
-    print('Erro inesperado: $e');
+      return {'error': 'Erro de conexão', 'message': e.toString()};
+    }
   }
-  return {'error': 'Erro de conexão'};
-}
 
+  Future<Map<String, dynamic>> get(String endpoint, {Map<String, String>? headers}) async {
+    try {
+      final url = Uri.parse('$baseUrl$endpoint');
+      final response = await http.get(
+        url,
+        headers: headers ?? {'Content-Type': 'application/json'},
+      );
 
-}
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'error': 'Erro: ${response.statusCode}',
+          'message': jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
+        };
+      }
+    } catch (e) {
+      return {'error': 'Erro de conexão', 'message': e.toString()};
+    }
+  }
+
 }

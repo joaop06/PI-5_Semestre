@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "invest_control",
+            "cwd": "Mobile\\invest_control",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "invest_control (profile mode)",
+            "cwd": "Mobile\\invest_control",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "invest_control (release mode)",
+            "cwd": "Mobile\\invest_control",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
