@@ -131,29 +131,29 @@ class ApiService {
   }
 
   // Método para atualizar os dados do usuário (PATCH /users)
-  Future<Map<String, dynamic>> patchUserData(
-      Map<String, dynamic> data, String token) async {
-    try {
-      final response = await http.patch(
-        Uri.parse('$baseUrl/users'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(data),
-      );
+  Future<Map<String, dynamic>> updateUser(String userId, Map<String, dynamic> data, String token) async {
+  final url = Uri.parse('$baseUrl/users/$userId');
+  try {
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(data),
+    );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else {
-        return {
-          'error': 'Erro ao atualizar dados do usuário: ${response.statusCode}, ${response.body}'
-        };
-      }
-    } catch (e) {
-      return {'error': 'Erro ao conectar ao servidor: $e'};
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {'error': 'Erro: ${response.statusCode}, ${response.body}'};
     }
+  } catch (e) {
+    return {'error': 'Erro ao conectar com o servidor: $e'};
   }
+}
+
+
 
   // Método para alterar a senha do usuário (POST /users/change-password)
   Future<Map<String, dynamic>> changePassword(

@@ -20,51 +20,114 @@ class _HomePageState extends State<HomePage> {
   final ApiService _apiService = ApiService();
   final AuthService _authService = AuthService(); // Instância do AuthService
 
-  void _sendCryptoData() async {
-    // Cria o mapa com os dados inseridos pelo usuário
-    final data = {
-      "low": double.tryParse(_lowController.text) ?? 0.0,
-      "high": double.tryParse(_highController.text) ?? 0.0,
-      "open": double.tryParse(_openController.text) ?? 0.0,
-      "close": double.tryParse(_closeController.text) ?? 0.0,
-      "volume": int.tryParse(_volumeController.text) ?? 0,
-    };
 
-    // Valida os campos
-    if (data.values.contains(0)) {
+
+  // void _sendCryptoData() async {
+  //   // Cria o mapa com os dados inseridos pelo usuário
+  //   final data = {
+  //     "low": double.tryParse(_lowController.text) ?? 0.0,
+  //     "high": double.tryParse(_highController.text) ?? 0.0,
+  //     "open": double.tryParse(_openController.text) ?? 0.0,
+  //     "close": double.tryParse(_closeController.text) ?? 0.0,
+  //     "volume": int.tryParse(_volumeController.text) ?? 0,
+  //   };
+
+  //   // Valida os campos
+  //   if (data.values.contains(0)) {
+  //     setState(() {
+  //       _responseResult = 'Por favor, preencha todos os campos corretamente.';
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     // Recupera o token de acesso
+  //     final token = await _authService.getAccessToken();
+  //     print('Token recuperado: $token');
+  //     if (token == null) {
+  //       setState(() {
+  //         _responseResult = 'Erro: Token de acesso não encontrado. Faça login novamente.';
+  //       });
+  //       return;
+  //     }
+
+  //     // Envia os dados para o back-end
+  //     final response = await _apiService.postCryptoRisk(data, token);
+  //     print('Resposta da API: $response');
+
+  //     // Atualiza a tela com a resposta do servidor
+  //     setState(() {
+  //       _responseResult = response.containsKey('error')
+  //           ? 'Erro: ${response['error']}'
+  //           : 'Risco de Investimento: ${response['risk']}';
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       _responseResult = 'Erro ao enviar dados: $e';
+  //     });
+  //   }
+  // }
+
+  bool _isSending = false; // Estado para controlar o botão
+
+void _sendCryptoData() async {
+  // Evita múltiplos envios simultâneos
+  if (_isSending) return;
+
+  setState(() {
+    _isSending = true;
+    _responseResult = ''; // Limpa mensagens anteriores
+  });
+
+  // Cria o mapa com os dados inseridos pelo usuário
+  final data = {
+    "low": double.tryParse(_lowController.text) ?? 0.0,
+    "high": double.tryParse(_highController.text) ?? 0.0,
+    "open": double.tryParse(_openController.text) ?? 0.0,
+    "close": double.tryParse(_closeController.text) ?? 0.0,
+    "volume": int.tryParse(_volumeController.text) ?? 0,
+  };
+
+  // Valida os campos
+  if (data.values.contains(0)) {
+    setState(() {
+      _responseResult = 'Por favor, preencha todos os campos corretamente.';
+      _isSending = false; // Libera o botão novamente
+    });
+    return;
+  }
+
+  try {
+    // Recupera o token de acesso
+    final token = await _authService.getAccessToken();
+    print('Token recuperado: $token');
+    if (token == null) {
       setState(() {
-        _responseResult = 'Por favor, preencha todos os campos corretamente.';
+        _responseResult = 'Erro: Token de acesso não encontrado. Faça login novamente.';
+        _isSending = false;
       });
       return;
     }
 
-    try {
-      // Recupera o token de acesso
-      final token = await _authService.getAccessToken();
-      print('Token recuperado: $token');
-      if (token == null) {
-        setState(() {
-          _responseResult = 'Erro: Token de acesso não encontrado. Faça login novamente.';
-        });
-        return;
-      }
+    // Envia os dados para o back-end
+    final response = await _apiService.postCryptoRisk(data, token);
+    print('Resposta da API: $response');
 
-      // Envia os dados para o back-end
-      final response = await _apiService.postCryptoRisk(data, token);
-      print('Resposta da API: $response');
-
-      // Atualiza a tela com a resposta do servidor
-      setState(() {
-        _responseResult = response.containsKey('error')
-            ? 'Erro: ${response['error']}'
-            : 'Risco de Investimento: ${response['risk']}';
-      });
-    } catch (e) {
-      setState(() {
-        _responseResult = 'Erro ao enviar dados: $e';
-      });
-    }
+    // Atualiza a tela com a resposta do servidor
+    setState(() {
+      _responseResult = response.containsKey('error')
+          ? 'Erro: ${response['error']}'
+          : 'Risco de Investimento: ${response['risk']}';
+      _isSending = false;
+    });
+  } catch (e) {
+    setState(() {
+      _responseResult = 'Erro ao enviar dados: $e';
+      _isSending = false;
+    });
   }
+}
+
 
   void _logout() async {
   await _authService.logout(); // Limpa o token armazenado
@@ -140,8 +203,12 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 32),
               ElevatedButton(
-                onPressed: _sendCryptoData,
-                child: const Text('Enviar Dados'),
+                onPressed: _isSending ? null : _sendCryptoData,
+                child: _isSending 
+                // ignore: prefer_const_constructors
+                ? CircularProgressIndicator(color: Colors.white)
+                // ignore: prefer_const_constructors
+                : Text('Enviar Dados'),
               ),
               const SizedBox(height: 16),
               if (_responseResult != null)

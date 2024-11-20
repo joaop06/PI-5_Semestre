@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http; 
 import 'api_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+
 
 class AuthService {
   final ApiService _apiService = ApiService();  // Usando o ApiService para chamadas de API
@@ -41,7 +43,6 @@ class AuthService {
   }
 }
 
-
   // Recuperar o token do armazenamento
   Future<String?> getAccessToken() async {
     return await _storage.read(key: 'accessToken');
@@ -67,4 +68,33 @@ class AuthService {
     await _storage.delete(key: 'accessToken');
     print('Token removido com sucesso.');
   }
+
+ Future<String?> getUserId() async {
+  final token = await getAccessToken(); // Recupera o token armazenado
+  if (token == null) {
+    print("Token não encontrado."); // Log de erro para token ausente
+    throw Exception("Token não encontrado");
+  }
+
+  final payload = JwtDecoder.decode(token); // Decodifica o token
+  print("Payload decodificado: $payload"); // Log para ver o conteúdo do token decodificado
+
+  final userId = payload['sub']; // A chave 'sub' deve conter o ID do usuário
+  print("UserId extraído do payload: $userId"); // Log para verificar o valor do userId
+
+  if (userId == null) {
+    print("UserId não encontrado no payload."); // Log de erro para userId ausente
+    throw Exception("UserId não encontrado no payload");
+  }
+
+  if (userId is! String) {
+    print("UserId não é uma string, convertendo: $userId"); // Log se precisar de conversão
+    return userId.toString();
+  }
+
+  return userId;
+}
+
+
+
 }
