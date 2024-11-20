@@ -9,36 +9,38 @@ class AuthService {
 
   final String baseUrl = 'http://localhost:3000';  // Defina a URL base para a API
 
-  // Login e armazenamento do token
   Future<Map<String, dynamic>> login(String email, String password) async {
-    try {
-      final url = Uri.parse('$baseUrl/auth/login');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      );
+  try {
+    final url = Uri.parse('$baseUrl/auth/login');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        print('Resposta da API: $data');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      print('Resposta da API: $data');
 
-        if (data.containsKey('accessToken')) {
-          print('Token recebido: ${data['accessToken']}');
-          await _storage.write(key: 'accessToken', value: data['accessToken']);
-          return data;  // Retorna os dados com o token
-        } else {
-          return {'error': 'Token não encontrado na resposta'};
-        }
+      if (data.containsKey('accessToken') && data['accessToken'].isNotEmpty) {
+        print('Token recebido: ${data['accessToken']}');
+        await _storage.write(key: 'accessToken', value: data['accessToken']);
+        return {'success': true, 'message': 'Login realizado com sucesso!'};
       } else {
-        return {'error': 'Erro no login: ${response.statusCode}, ${response.body}'};
+        print('Erro: Token ausente ou vazio');
+        return {'success': false, 'message': 'Token não encontrado. Verifique suas credenciais.'};
       }
-
-    } catch (e) {
-      print('Erro ao fazer login: $e');
-      return {'error': 'Erro ao conectar com o servidor: $e'};
+    } else {
+      final errorMsg = jsonDecode(response.body)['message'] ?? 'Erro desconhecido';
+      print('Erro no login: $errorMsg');
+      return {'success': false, 'message': 'Login falhou: $errorMsg'};
     }
+  } catch (e) {
+    print('Erro ao fazer login: $e');
+    return {'success': false, 'message': 'Erro ao conectar com o servidor. Tente novamente.'};
   }
+}
+
 
   // Recuperar o token do armazenamento
   Future<String?> getAccessToken() async {
@@ -63,5 +65,6 @@ class AuthService {
   // Logout (apagar o token)
   Future<void> logout() async {
     await _storage.delete(key: 'accessToken');
+    print('Token removido com sucesso.');
   }
 }

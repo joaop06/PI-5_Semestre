@@ -13,26 +13,29 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   void _login() async {
-    final email = _emailController.text;
-    final password = _passwordController.text;
+  final email = _emailController.text.trim();
+  final password = _passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
-      _showMessage('Preencha todos os campos');
-      return;
-    }
-
-    try {
-      await _authService.login(email, password);
-      _showMessage('Login realizado com sucesso!');
-      Navigator.pushNamed(context, '/home');
-    } catch (e) {
-      _showMessage('Erro: ${e.toString()}');
-    }
+  if (email.isEmpty || password.isEmpty) {
+    _showMessage('Por favor, preencha todos os campos.');
+    return;
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  final result = await _authService.login(email, password);
+
+  if (result['success']) {
+    _showMessage(result['message']);
+    Navigator.pushReplacementNamed(context, '/home');
+  } else {
+    _showMessage(result['message']); // Exibe a mensagem de erro
   }
+}
+
+void _showMessage(String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message)),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

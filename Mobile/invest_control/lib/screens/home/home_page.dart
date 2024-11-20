@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _responseResult = response.containsKey('error')
             ? 'Erro: ${response['error']}'
-            : 'Resposta do servidor: ${response.toString()}';
+            : 'Risco de Investimento: ${response['risk']}';
       });
     } catch (e) {
       setState(() {
@@ -66,9 +66,10 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _logout() {
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-  }
+  void _logout() async {
+  await _authService.logout(); // Limpa o token armazenado
+  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false); // Navega para a tela inicial
+}
 
   void _editProfile() {
     Navigator.pushNamed(context, '/edit-profile');
