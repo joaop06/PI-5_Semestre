@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   final String baseUrl = 'http://localhost:3000'; // Altere para o URL real do back-end
+  //final String baseUrl = 'https://pi5.semestre.fluxocar.com.br'; // Altere para o URL real do back-end
 
   Future<bool> registerUser(String name, String email, String password) async {
     final url = Uri.parse('$baseUrl/users'); // Substitua pela rota correta no NestJS
@@ -86,4 +87,96 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> postCryptoRisk(Map<String, dynamic> data, String token) async {
+    final url = Uri.parse('$baseUrl/crypto-risk');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'error': 'Erro: ${response.statusCode}, ${response.body}'};
+      }
+    } catch (e) {
+      return {'error': 'Erro ao conectar com o servidor: $e'};
+    }
+}
+
+  Future<Map<String, dynamic>> getUserData(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/users'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'error': 'Erro ao buscar dados do usuário: ${response.statusCode}, ${response.body}'
+        };
+      }
+    } catch (e) {
+      return {'error': 'Erro ao conectar ao servidor: $e'};
+    }
+  }
+
+  // Método para atualizar os dados do usuário (PATCH /users)
+  Future<Map<String, dynamic>> patchUserData(
+      Map<String, dynamic> data, String token) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/users'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'error': 'Erro ao atualizar dados do usuário: ${response.statusCode}, ${response.body}'
+        };
+      }
+    } catch (e) {
+      return {'error': 'Erro ao conectar ao servidor: $e'};
+    }
+  }
+
+  // Método para alterar a senha do usuário (POST /users/change-password)
+  Future<Map<String, dynamic>> changePassword(
+      Map<String, dynamic> data, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/users/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'error': 'Erro ao alterar senha: ${response.statusCode}, ${response.body}'
+        };
+      }
+    } catch (e) {
+      return {'error': 'Erro ao conectar ao servidor: $e'};
+    }
+  }
 }

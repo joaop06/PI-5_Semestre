@@ -19,21 +19,21 @@ class AuthService {
         body: jsonEncode({'email': email, 'password': password}),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
+        print('Resposta da API: $data');
+
         if (data.containsKey('accessToken')) {
           print('Token recebido: ${data['accessToken']}');
-          // Armazenar o token de acesso
           await _storage.write(key: 'accessToken', value: data['accessToken']);
           return data;  // Retorna os dados com o token
         } else {
           return {'error': 'Token não encontrado na resposta'};
         }
-      } else if (response.statusCode == 201) {
-        return {'error': 'Requisição criada com sucesso, mas login falhou'};
       } else {
         return {'error': 'Erro no login: ${response.statusCode}, ${response.body}'};
       }
+
     } catch (e) {
       print('Erro ao fazer login: $e');
       return {'error': 'Erro ao conectar com o servidor: $e'};

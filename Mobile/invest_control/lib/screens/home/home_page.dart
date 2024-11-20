@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:invest_control/services/api_service.dart';
+import 'package:invest_control/services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,29 +16,54 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _closeController = TextEditingController();
   final TextEditingController _volumeController = TextEditingController();
 
-  String? _riskResult;
+  String? _responseResult;
+  final ApiService _apiService = ApiService();
+  final AuthService _authService = AuthService(); // Instância do AuthService
 
-  void _calculateRisk() {
-    final low = double.tryParse(_lowController.text) ?? 0.0;
-    final high = double.tryParse(_highController.text) ?? 0.0;
-    final open = double.tryParse(_openController.text) ?? 0.0;
-    final close = double.tryParse(_closeController.text) ?? 0.0;
-    final volume = int.tryParse(_volumeController.text) ?? 0;
+  void _sendCryptoData() async {
+    // Cria o mapa com os dados inseridos pelo usuário
+    final data = {
+      "low": double.tryParse(_lowController.text) ?? 0.0,
+      "high": double.tryParse(_highController.text) ?? 0.0,
+      "open": double.tryParse(_openController.text) ?? 0.0,
+      "close": double.tryParse(_closeController.text) ?? 0.0,
+      "volume": int.tryParse(_volumeController.text) ?? 0,
+    };
 
-    if (low == 0 || high == 0 || open == 0 || close == 0 || volume == 0) {
+    // Valida os campos
+    if (data.values.contains(0)) {
       setState(() {
-        _riskResult = 'Por favor, preencha todos os campos corretamente.';
+        _responseResult = 'Por favor, preencha todos os campos corretamente.';
       });
       return;
     }
 
-    // Cálculo simples de risco (customize como necessário)
-    final volatility = (high - low) / open;
-    final risk = volatility * volume;
+    try {
+      // Recupera o token de acesso
+      final token = await _authService.getAccessToken();
+      print('Token recuperado: $token');
+      if (token == null) {
+        setState(() {
+          _responseResult = 'Erro: Token de acesso não encontrado. Faça login novamente.';
+        });
+        return;
+      }
 
-    setState(() {
-      _riskResult = 'O risco estimado do investimento é de ${risk.toStringAsFixed(2)}.';
-    });
+      // Envia os dados para o back-end
+      final response = await _apiService.postCryptoRisk(data, token);
+      print('Resposta da API: $response');
+
+      // Atualiza a tela com a resposta do servidor
+      setState(() {
+        _responseResult = response.containsKey('error')
+            ? 'Erro: ${response['error']}'
+            : 'Resposta do servidor: ${response.toString()}';
+      });
+    } catch (e) {
+      setState(() {
+        _responseResult = 'Erro ao enviar dados: $e';
+      });
+    }
   }
 
   void _logout() {
@@ -51,13 +78,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Análise de Risco'),
+        title: const Text('Análise de Criptomoedas'),
         actions: [
           IconButton(
-              icon: const Icon(Icons.person),
-              onPressed: _editProfile,
-              tooltip: 'Editar Usuário',
-            ),
+            icon: const Icon(Icons.person),
+            onPressed: _editProfile,
+            tooltip: 'Editar Usuário',
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _logout,
@@ -65,63 +92,64 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _lowController,
-              decoration: const InputDecoration(
-                labelText: 'Valor mais baixo (Low)',
+      body: SingleChildScrollView(  // Envolvendo o corpo com SingleChildScrollView
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _lowController,
+                decoration: const InputDecoration(
+                  labelText: 'Valor mais baixo (Low)',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _highController,
-              decoration: const InputDecoration(
-                labelText: 'Valor mais alto (High)',
+              const SizedBox(height: 16),
+              TextField(
+                controller: _highController,
+                decoration: const InputDecoration(
+                  labelText: 'Valor mais alto (High)',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _openController,
-              decoration: const InputDecoration(
-                labelText: 'Valor de abertura (Open)',
+              const SizedBox(height: 16),
+              TextField(
+                controller: _openController,
+                decoration: const InputDecoration(
+                  labelText: 'Valor de abertura (Open)',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _closeController,
-              decoration: const InputDecoration(
-                labelText: 'Valor de fechamento (Close)',
+              const SizedBox(height: 16),
+              TextField(
+                controller: _closeController,
+                decoration: const InputDecoration(
+                  labelText: 'Valor de fechamento (Close)',
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _volumeController,
-              decoration: const InputDecoration(
-                labelText: 'Volume',
+              const SizedBox(height: 16),
+              TextField(
+                controller: _volumeController,
+                decoration: const InputDecoration(
+                  labelText: 'Volume',
+                ),
+                keyboardType: TextInputType.number,
               ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _calculateRisk,
-              child: const Text('Calcular Risco'),
-            ),
-            const SizedBox(height: 16),
-            if (_riskResult != null)
-              Text(
-                _riskResult!,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _sendCryptoData,
+                child: const Text('Enviar Dados'),
               ),
-            const SizedBox(height: 32),
-          ],
+              const SizedBox(height: 16),
+              if (_responseResult != null)
+                Text(
+                  _responseResult!,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+            ],
+          ),
         ),
       ),
     );
