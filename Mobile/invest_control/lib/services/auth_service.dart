@@ -6,10 +6,10 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 
 
 class AuthService {
-  final ApiService _apiService = ApiService();  // Usando o ApiService para chamadas de API
+  final ApiService _apiService = ApiService(); 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  final String baseUrl = 'http://localhost:3000';  // Defina a URL base para a API
+  final String baseUrl = 'http://localhost:3000'; 
 
   Future<Map<String, dynamic>> login(String email, String password) async {
   try {
@@ -43,12 +43,10 @@ class AuthService {
   }
 }
 
-  // Recuperar o token do armazenamento
   Future<String?> getAccessToken() async {
     return await _storage.read(key: 'accessToken');
   }
 
-  // Validar o token
   Future<bool> validateToken() async {
     final token = await getAccessToken();
     if (token == null) return false;
@@ -57,38 +55,37 @@ class AuthService {
       final response = await _apiService.get('/auth/validate', headers: {
         'Authorization': 'Bearer $token',
       });
-      return response['valid'] == true;  // Ajuste baseado no que a API retorna
+      return response['valid'] == true; 
     } catch (e) {
       return false;
     }
   }
 
-  // Logout (apagar o token)
   Future<void> logout() async {
     await _storage.delete(key: 'accessToken');
     print('Token removido com sucesso.');
   }
 
  Future<String?> getUserId() async {
-  final token = await getAccessToken(); // Recupera o token armazenado
+  final token = await getAccessToken();
   if (token == null) {
-    print("Token não encontrado."); // Log de erro para token ausente
+    print("Token não encontrado."); 
     throw Exception("Token não encontrado");
   }
 
-  final payload = JwtDecoder.decode(token); // Decodifica o token
-  print("Payload decodificado: $payload"); // Log para ver o conteúdo do token decodificado
+  final payload = JwtDecoder.decode(token); 
+  print("Payload decodificado: $payload"); 
 
-  final userId = payload['sub']; // A chave 'sub' deve conter o ID do usuário
-  print("UserId extraído do payload: $userId"); // Log para verificar o valor do userId
+  final userId = payload['sub']; 
+  print("UserId extraído do payload: $userId"); 
 
   if (userId == null) {
-    print("UserId não encontrado no payload."); // Log de erro para userId ausente
+    print("UserId não encontrado no payload."); 
     throw Exception("UserId não encontrado no payload");
   }
 
   if (userId is! String) {
-    print("UserId não é uma string, convertendo: $userId"); // Log se precisar de conversão
+    print("UserId não é uma string, convertendo: $userId"); 
     return userId.toString();
   }
 

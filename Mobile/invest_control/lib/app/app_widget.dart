@@ -3,6 +3,7 @@ import '../screens/login/login_page.dart';
 import '../screens/register/register_page.dart';
 import '../screens/home/home_page.dart';
 import 'package:invest_control/screens/edit_profile/edit_profile_page.dart';
+import 'package:invest_control/screens/edit_profile/edit_password_page.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
         '/edit-profile': (context) => const EditProfilePage(),
+        '/change-password': (context) =>  ChangePasswordPage()
       },
     );
   }

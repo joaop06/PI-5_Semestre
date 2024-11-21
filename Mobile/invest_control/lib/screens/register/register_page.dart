@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Usuário cadastrado com sucesso!')),
         );
-        Navigator.pop(context); // Voltar para a tela anterior
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao cadastrar usuário.')),

@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
     _showMessage(result['message']);
     Navigator.pushReplacementNamed(context, '/home');
   } else {
-    _showMessage(result['message']); // Exibe a mensagem de erro
+    _showMessage(result['message']);
   }
 }
 

@@ -18,68 +18,18 @@ class _HomePageState extends State<HomePage> {
 
   String? _responseResult;
   final ApiService _apiService = ApiService();
-  final AuthService _authService = AuthService(); // Instância do AuthService
+  final AuthService _authService = AuthService();
 
-
-
-  // void _sendCryptoData() async {
-  //   // Cria o mapa com os dados inseridos pelo usuário
-  //   final data = {
-  //     "low": double.tryParse(_lowController.text) ?? 0.0,
-  //     "high": double.tryParse(_highController.text) ?? 0.0,
-  //     "open": double.tryParse(_openController.text) ?? 0.0,
-  //     "close": double.tryParse(_closeController.text) ?? 0.0,
-  //     "volume": int.tryParse(_volumeController.text) ?? 0,
-  //   };
-
-  //   // Valida os campos
-  //   if (data.values.contains(0)) {
-  //     setState(() {
-  //       _responseResult = 'Por favor, preencha todos os campos corretamente.';
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     // Recupera o token de acesso
-  //     final token = await _authService.getAccessToken();
-  //     print('Token recuperado: $token');
-  //     if (token == null) {
-  //       setState(() {
-  //         _responseResult = 'Erro: Token de acesso não encontrado. Faça login novamente.';
-  //       });
-  //       return;
-  //     }
-
-  //     // Envia os dados para o back-end
-  //     final response = await _apiService.postCryptoRisk(data, token);
-  //     print('Resposta da API: $response');
-
-  //     // Atualiza a tela com a resposta do servidor
-  //     setState(() {
-  //       _responseResult = response.containsKey('error')
-  //           ? 'Erro: ${response['error']}'
-  //           : 'Risco de Investimento: ${response['risk']}';
-  //     });
-  //   } catch (e) {
-  //     setState(() {
-  //       _responseResult = 'Erro ao enviar dados: $e';
-  //     });
-  //   }
-  // }
-
-  bool _isSending = false; // Estado para controlar o botão
+  bool _isSending = false;
 
 void _sendCryptoData() async {
-  // Evita múltiplos envios simultâneos
   if (_isSending) return;
 
   setState(() {
     _isSending = true;
-    _responseResult = ''; // Limpa mensagens anteriores
+    _responseResult = ''; 
   });
 
-  // Cria o mapa com os dados inseridos pelo usuário
   final data = {
     "low": double.tryParse(_lowController.text) ?? 0.0,
     "high": double.tryParse(_highController.text) ?? 0.0,
@@ -88,17 +38,15 @@ void _sendCryptoData() async {
     "volume": int.tryParse(_volumeController.text) ?? 0,
   };
 
-  // Valida os campos
   if (data.values.contains(0)) {
     setState(() {
       _responseResult = 'Por favor, preencha todos os campos corretamente.';
-      _isSending = false; // Libera o botão novamente
+      _isSending = false; 
     });
     return;
   }
 
   try {
-    // Recupera o token de acesso
     final token = await _authService.getAccessToken();
     print('Token recuperado: $token');
     if (token == null) {
@@ -109,11 +57,9 @@ void _sendCryptoData() async {
       return;
     }
 
-    // Envia os dados para o back-end
     final response = await _apiService.postCryptoRisk(data, token);
     print('Resposta da API: $response');
 
-    // Atualiza a tela com a resposta do servidor
     setState(() {
       _responseResult = response.containsKey('error')
           ? 'Erro: ${response['error']}'
@@ -130,8 +76,8 @@ void _sendCryptoData() async {
 
 
   void _logout() async {
-  await _authService.logout(); // Limpa o token armazenado
-  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false); // Navega para a tela inicial
+  await _authService.logout(); 
+  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
 }
 
   void _editProfile() {
@@ -156,7 +102,7 @@ void _sendCryptoData() async {
           ),
         ],
       ),
-      body: SingleChildScrollView(  // Envolvendo o corpo com SingleChildScrollView
+      body: SingleChildScrollView(  
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -205,9 +151,7 @@ void _sendCryptoData() async {
               ElevatedButton(
                 onPressed: _isSending ? null : _sendCryptoData,
                 child: _isSending 
-                // ignore: prefer_const_constructors
                 ? CircularProgressIndicator(color: Colors.white)
-                // ignore: prefer_const_constructors
                 : Text('Enviar Dados'),
               ),
               const SizedBox(height: 16),
