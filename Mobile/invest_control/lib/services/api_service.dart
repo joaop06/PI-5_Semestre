@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String baseUrl = 'http://localhost:3000'; 
-  //final String baseUrl = 'https://pi5.semestre.fluxocar.com.br';
+  // final String baseUrl = 'http://localhost:3000'; 
+  final String baseUrl = 'https://pi5.semestre.fluxocar.com.br';
 
   Future<bool> registerUser(String name, String email, String password) async {
     final url = Uri.parse('$baseUrl/users');
