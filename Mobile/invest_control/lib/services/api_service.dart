@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // final String baseUrl = 'http://localhost:3000'; 
+  // final String baseUrl = 'http://localhost:3000';
   final String baseUrl = 'https://pi5.semestre.fluxocar.com.br';
 
   Future<bool> registerUser(String name, String email, String password) async {
@@ -15,7 +15,6 @@ class ApiService {
       print('Password: $password');
       print('url: $url');
       print('Tentando conectar ao servidor: $url');
-
 
       final response = await http.post(
         url,
@@ -40,7 +39,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> post(
+      String endpoint, Map<String, dynamic> body) async {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
       final response = await http.post(
@@ -54,7 +54,8 @@ class ApiService {
       } else {
         return {
           'error': 'Erro: ${response.statusCode}',
-          'message': jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
+          'message':
+              jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
         };
       }
     } catch (e) {
@@ -62,7 +63,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> get(String endpoint, {Map<String, String>? headers}) async {
+  Future<Map<String, dynamic>> get(String endpoint,
+      {Map<String, String>? headers}) async {
     try {
       final url = Uri.parse('$baseUrl$endpoint');
       final response = await http.get(
@@ -75,7 +77,8 @@ class ApiService {
       } else {
         return {
           'error': 'Erro: ${response.statusCode}',
-          'message': jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
+          'message':
+              jsonDecode(response.body)['message'] ?? 'Erro desconhecido',
         };
       }
     } catch (e) {
@@ -83,7 +86,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> postCryptoRisk(Map<String, dynamic> data, String token) async {
+  Future<Map<String, dynamic>> postCryptoRisk(
+      Map<String, dynamic> data, String token) async {
     final url = Uri.parse('$baseUrl/crypto-risk');
     try {
       final response = await http.post(
@@ -103,7 +107,7 @@ class ApiService {
     } catch (e) {
       return {'error': 'Erro ao conectar com o servidor: $e'};
     }
-}
+  }
 
   Future<Map<String, dynamic>> getUserData(String token) async {
     try {
@@ -118,7 +122,8 @@ class ApiService {
         return jsonDecode(response.body);
       } else {
         return {
-          'error': 'Erro ao buscar dados do usuário: ${response.statusCode}, ${response.body}'
+          'error':
+              'Erro ao buscar dados do usuário: ${response.statusCode}, ${response.body}'
         };
       }
     } catch (e) {
@@ -142,7 +147,8 @@ class ApiService {
         return jsonDecode(response.body);
       } else {
         return {
-          'error': 'Erro ao alterar senha: ${response.statusCode}, ${response.body}'
+          'error':
+              'Erro ao alterar senha: ${response.statusCode}, ${response.body}'
         };
       }
     } catch (e) {
@@ -169,36 +175,38 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> updateUser(String userId, Map<String, String> updatedData, String token) async {
-  final url = Uri.parse('$baseUrl/users/$userId');
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  };
+  Future<Map<String, dynamic>> updateUser(
+      String userId, Map<String, String> updatedData, String token) async {
+    final url = Uri.parse('$baseUrl/users/$userId');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
 
-  print("Enviando requisição para $url via PATCH");
-  print("Headers: $headers");
-  print("Body: $updatedData");
+    print("Enviando requisição para $url via PATCH");
+    print("Headers: $headers");
+    print("Body: $updatedData");
 
-  final response = await http.patch(
-    url,
-    headers: headers,
-    body: jsonEncode(updatedData),
-  );
+    final response = await http.patch(
+      url,
+      headers: headers,
+      body: jsonEncode(updatedData),
+    );
 
-  print("Resposta da API: ${response.statusCode}");
-  print("Corpo da resposta: ${response.body}");
+    print("Resposta da API: ${response.statusCode}");
+    print("Corpo da resposta: ${response.body}");
 
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    return {'success': false, 'error': response.body};
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return {'success': false, 'error': response.body};
+    }
   }
-}
 
-  Future<Map<String, dynamic>> postRequest(String url, Map<String, dynamic> body, String token) async {
+  Future<Map<String, dynamic>> postRequest(
+      String url, Map<String, dynamic> body, String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/change-password/$userId');
+      Uri.parse('$baseUrl/change-password/${body["userId"]}'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -212,6 +220,4 @@ class ApiService {
       throw Exception('Erro na solicitação: ${response.body}');
     }
   }
-
-
 }
